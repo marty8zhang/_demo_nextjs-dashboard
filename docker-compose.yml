@@ -1,0 +1,16 @@
+name: _demo_nextjs-dashboard
+
+services:
+    database_postgres:
+        image: postgres:16.3-alpine
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: ${POSTGRES_USERNAME:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+            POSTGRES_DB: ${POSTGRES_DATABASE:-_demo_nextjs-dashboard}
+        networks:
+            - network_demo_nextjs-dashboard
+
+networks:
+    network_demo_nextjs-dashboard:
