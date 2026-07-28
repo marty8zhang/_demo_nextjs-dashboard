@@ -25,16 +25,20 @@ async function seedUsers() {
   `);
   console.log('Table `users` created.');
 
-  const insertedUsers = await Promise.all(
-    users.map(async (user) => {
-      const hashedPassword = await bcrypt.hash(user.password, 10);
-      return client.query(`
+  const values: string[] = [];
+  const params: unknown[] = [];
+  for (const [i, user] of users.entries()) {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const offset = i * 4;
+    values.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
+    params.push(user.id, user.name, user.email, hashedPassword);
+  }
+  const insertedUsers = await client.query(`
         INSERT INTO users (id, name, email, password)
-        VALUES ('${user.id}', '${user.name}', '${user.email}', '${hashedPassword}')
+        VALUES ${values.join(',')}
         ON CONFLICT (id) DO NOTHING;
-      `);
-    }),
-  );
+      `,
+    params);
   console.log('Users added.', insertedUsers);
 
   return insertedUsers;
@@ -54,14 +58,18 @@ async function seedInvoices() {
   `);
   console.log('Table `invoices` created.');
 
-  const insertedInvoices = await Promise.all(
-    invoices.map(
-      (invoice) => client.query(`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES ('${invoice.customer_id}', '${invoice.amount}', '${invoice.status}', '${invoice.date}')
-        ON CONFLICT (id) DO NOTHING;
-      `),
-    ),
+  const values: string[] = [];
+  const params: unknown[] = [];
+  for (const [i, invoice] of invoices.entries()) {
+    const offset = i * 4;
+    values.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
+    params.push(invoice.customer_id, invoice.amount, invoice.status, invoice.date);
+  }
+  const insertedInvoices = await client.query(
+    `INSERT INTO invoices (customer_id, amount, status, date)
+   VALUES ${values.join(', ')}
+   ON CONFLICT (id) DO NOTHING;`,
+    params,
   );
   console.log('Invoices added.', insertedInvoices);
 
@@ -81,14 +89,18 @@ async function seedCustomers() {
   `);
   console.log('Table `customers` created.');
 
-  const insertedCustomers = await Promise.all(
-    customers.map(
-      (customer) => client.query(`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES ('${customer.id}', '${customer.name}', '${customer.email}', '${customer.image_url}')
-        ON CONFLICT (id) DO NOTHING;
-      `),
-    ),
+  const values: string[] = [];
+  const params: unknown[] = [];
+  customers.forEach((customer, i) => {
+    const offset = i * 4;
+    values.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
+    params.push(customer.id, customer.name, customer.email, customer.image_url);
+  });
+  const insertedCustomers = await client.query(
+    `INSERT INTO customers (id, name, email, image_url)
+   VALUES ${values.join(', ')}
+   ON CONFLICT (id) DO NOTHING;`,
+    params,
   );
   console.log('Customers added.', insertedCustomers);
 
@@ -104,14 +116,18 @@ async function seedRevenue() {
   `);
   console.log('Table `revenue` created.');
 
-  const insertedRevenue = await Promise.all(
-    revenue.map(
-      (rev) => client.query(`
-        INSERT INTO revenue (month, revenue)
-        VALUES ('${rev.month}', '${rev.revenue}')
-        ON CONFLICT (month) DO NOTHING;
-      `),
-    ),
+  const values: string[] = [];
+  const params: unknown[] = [];
+  for (const [i, rev] of revenue.entries()) {
+    const offset = i * 2;
+    values.push(`($${offset + 1}, $${offset + 2})`);
+    params.push(rev.month, rev.revenue);
+  }
+  const insertedRevenue = await client.query(
+    `INSERT INTO revenue (month, revenue)
+   VALUES ${values.join(', ')}
+   ON CONFLICT (month) DO NOTHING;`,
+    params,
   );
   console.log('Revenue added.', insertedRevenue);
 
@@ -119,10 +135,6 @@ async function seedRevenue() {
 }
 
 export async function GET() {
-  // return Response.json({
-  //   message:
-  //     'Uncomment this file and remove this line. You can delete this file when you are finished.',
-  // });
   try {
     await client.query(`BEGIN`);
     await seedUsers();

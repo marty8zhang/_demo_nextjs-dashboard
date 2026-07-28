@@ -1,46 +1,43 @@
 {
   "private": true,
   "scripts": {
-    "lint": "next lint",
+    "lint": "eslint . --fix",
     "build": "next build",
     "dev": "next dev",
     "start": "next start"
   },
   "dependencies": {
-    "@heroicons/react": "^2.1.4",
-    "@tailwindcss/forms": "^0.5.7",
+    "@heroicons/react": "^2.2.0",
+    "@tailwindcss/forms": "^0.5.11",
     "@vercel/postgres": "^0.8.0",
-    "autoprefixer": "10.4.19",
+    "autoprefixer": "^10.5.4",
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
-    "next": "15.0.0-canary.56",
-    "next-auth": "5.0.0-beta.22",
-    "pg": "^8.13.0",
-    "postcss": "8.4.38",
-    "react": "19.0.0-rc-f38c22b244-20240704",
-    "react-dom": "19.0.0-rc-f38c22b244-20240704",
-    "tailwindcss": "3.4.4",
-    "typescript": "5.5.2",
-    "use-debounce": "^10.0.1",
-    "zod": "^3.23.8"
+    "next": "^16.2.12",
+    "next-auth": "5.0.0-beta.32",
+    "pg": "^8.22.0",
+    "postcss": "^8.5.23",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "use-debounce": "^10.1.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.2.12",
     "@types/bcrypt": "^5.0.2",
-    "@types/node": "20.14.8",
-    "@types/pg": "^8.11.10",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.15"
+    "@types/node": "^20.19.43",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "eslint": "^10.8.0",
+    "eslint-config-next": "^14.2.35",
+    "globals": "^17.8.0",
+    "typescript-eslint": "^8.65.0"
   },
   "engines": {
     "node": ">=20.12.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "ws@>=8.0.0 <8.17.1": ">=8.17.1",
-      "micromatch@<4.0.8": ">=4.0.8",
-      "cookie@<0.7.0": ">=0.7.0"
-    }
   }
 }
