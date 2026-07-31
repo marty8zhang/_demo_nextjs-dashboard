@@ -1,11 +1,11 @@
 'use server';
 
 import {z} from 'zod';
-import {client} from '@/app/lib/data';
 import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
 import {signIn} from '@/auth';
 import { AuthError } from 'next-auth';
+import postgres from 'postgres';
 
 export type State = {
   errors?: {
@@ -15,6 +15,14 @@ export type State = {
   };
   message?: string | null;
 };
+
+const sql = postgres({
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DATABASE,
+  ssl: process.env.NODE_ENV === 'production' ? 'require' : false,
+});
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -48,10 +56,10 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const {customerId, amount, status} = validatedFields.data;
   const amountInCents = amount * 100;
 
-  await client.query(`
+  await sql`
       INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES ($1::uuid, $2::numeric, $3::text, $4::date)
-  `, [customerId, amountInCents, status, new Date().toISOString().split('T')[0]]);
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${new Date().toISOString().split('T')[0]})
+  `;
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
@@ -68,13 +76,13 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   const amountInCents = amount * 100;
 
-  await client.query(`
+  await sql`
       UPDATE invoices
-      SET customer_id = $1::uuid,
-          amount      = $2::numeric,
-          status      = $3::text
-      WHERE id = $4::uuid
-  `, [customerId, amountInCents, status, id]);
+      SET customer_id = ${customerId},
+          amount      = ${amountInCents},
+          status      = ${status}
+      WHERE id = ${id}
+  `;
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
@@ -83,9 +91,11 @@ export async function updateInvoice(id: string, formData: FormData) {
 export async function deleteInvoice(id: string) {
   // throw new Error('Boom!!!');
 
-  await client.query(`DELETE
-                      FROM invoices
-                      WHERE id = $1::uuid`, [id]);
+  await sql`
+    DELETE
+    FROM invoices
+    WHERE id = ${id}
+  `;
 
   revalidatePath('/dashboard/invoices');
 }
