@@ -102,7 +102,7 @@ export async function GET() {
       password: process.env.POSTGRES_PASSWORD,
       host: process.env.POSTGRES_HOST,
       database: process.env.POSTGRES_DATABASE,
-      ssl: process.env.NODE_ENV === 'production' ? 'require' : false,
+      ssl: process.env.NODE_ENV === 'production' ? 'prefer' : false,
     });
 
     await sql.begin(async (sql) => {
